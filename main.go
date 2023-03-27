@@ -27,5 +27,5 @@ func main() {
 	}
 
 	// Interpret the code
-	interpret(string(fileBytes))
+	interpLines(string(fileBytes))
 }

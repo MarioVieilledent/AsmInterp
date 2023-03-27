@@ -21,5 +21,6 @@ const (
 const REG_SIZE = 64
 
 type asm struct {
-	registers [REG_SIZE]uint8
+	reg [REG_SIZE]uint8 // Registers
+	adr uint8           // Pointer to instruction
 }
