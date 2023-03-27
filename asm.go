@@ -4,13 +4,12 @@ const (
 	MOV = "mov" // Move source (register or value) to destination
 	OUT = "out" // Print
 	ADD = "add" // Addition
-	SUB = "sub" // Substraction
+	SUB = "sub" // Subtraction
 	NEG = "neg" // Arithmetic negation
 	NOT = "not" // Bitwise complement
-	NOR = "nor"
-	AND = "and"
-	OR  = "or"
-	XOR = "xor"
+	AND = "and" // Logic gate AND
+	OR  = "or"  // Logic gate OR
+	XOR = "xor" // Logic gate XOR
 	INC = "inc" // Increment by 1
 	DEC = "dec" // Decrement by 1
 	SHF = "shl" // Left shift

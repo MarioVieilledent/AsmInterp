@@ -20,29 +20,36 @@ func interpret(fileContent string) {
 		// Use the first word as the switch value
 		switch words[0] {
 		case MOV:
-			if len(words) != 3 {
-				exit(lineNumber, MOV+" instruction requires 2 arguments.")
-			}
+			if len(words) == 3 {
+				reg, isValidReg := isValidRegister(words[1])
+				if !isValidReg {
+					exit(lineNumber, MOV+" instruction, \""+words[1]+"\" is not a valid register.")
+				}
 
-			reg, isValidReg := isValidRegister(words[1])
-			if !isValidReg {
-				exit(lineNumber, MOV+" instruction, \""+words[1]+"\" is not a valid register.")
-			}
-
-			val, isValidVal := isValidValue(words[2])
-			if !isValidVal {
-				reg2, isValidReg2 := isValidRegister(words[2])
-				if !isValidReg2 {
-					exit(lineNumber, MOV+" instruction, \""+words[2]+"\" is not a valid value or register.")
+				val, isValidVal := isValidValue(words[2])
+				if !isValidVal {
+					reg2, isValidReg2 := isValidRegister(words[2])
+					if !isValidReg2 {
+						exit(lineNumber, MOV+" instruction, \""+words[2]+"\" is not a valid value or register.")
+					} else {
+						a.registers[reg] = a.registers[reg2]
+					}
 				} else {
-					a.registers[reg] = a.registers[reg2]
+					a.registers[reg] = val
 				}
 			} else {
-				a.registers[reg] = val
+				exit(lineNumber, MOV+" instruction requires 2 arguments.")
 			}
 		case OUT:
-			if len(words) != 2 {
-
+			if len(words) == 2 {
+				v, is := isValidValueOrRegister(words[1])
+				if is == 1 {
+					fmt.Println(v)
+				} else if is == 2 {
+					fmt.Println(a.registers[v])
+				} else {
+					exit(lineNumber, OUT+" instruction, \""+words[1]+"\" is not a valid value or register.")
+				}
 			} else {
 				exit(lineNumber, OUT+" instruction should have 1 operands.")
 			}
@@ -52,10 +59,33 @@ func interpret(fileContent string) {
 			fmt.Println("Matched SUB")
 		case OR:
 			fmt.Println("Matched OR")
-		case NOR:
-			fmt.Println("Matched NOR")
 		case AND:
-			if len(words) != 4 {
+			if len(words) == 4 {
+				v1, is1 := isValidValueOrRegister(words[2])
+				if is == 1 {
+					fmt.Println(v)
+				} else if is == 2 {
+					fmt.Println(a.registers[v])
+				} else {
+					exit(lineNumber, AND+" instruction, \""+words[1]+"\" is not a valid value or register.")
+				}
+
+				v2, is2 := isValidValueOrRegister(words[3])
+				if is == 1 {
+					fmt.Println(v)
+				} else if is == 2 {
+					fmt.Println(a.registers[v])
+				} else {
+					exit(lineNumber, AND+" instruction, \""+words[1]+"\" is not a valid value or register.")
+				}
+
+				
+				reg, isReg := isValidRegister(words[1])
+				if isReg {
+					a.registers[reg] =
+				} else {
+					exit(lineNumber, AND+" instruction, \""+words[1]+"\" is not a valid register.")
+				}
 			} else {
 				exit(lineNumber, AND+" instruction should have 3 operands.")
 			}
@@ -102,6 +132,28 @@ func isValidValue(str string) (uint8, bool) {
 	return 0, false
 }
 
+// 0 = error, 1 = valid value, 2 = valid register
+func isValidValueOrRegister(str string) (uint8, int) {
+	if str[0] != 'r' {
+		if num, err := strconv.Atoi(str); err == nil && num >= 0 && num <= 255 {
+			return uint8(num), 1
+		}
+		if len(str) >= 3 && str[0:2] == "0x" {
+			hexStr := str[2:]
+			if num, err := strconv.ParseUint(hexStr, 16, 8); err == nil && num <= 255 {
+				return uint8(num), 1
+			}
+		}
+		return 0, 0
+	}
+	numStr := str[1:]
+	num, err := strconv.Atoi(numStr)
+	if err != nil || num < 0 || num > 63 {
+		return 0, 0
+	}
+	return uint8(num), 2
+}
+
 func exit(lineNumber int, message string) {
-	fmt.Println("Error at line " + strconv.Itoa(lineNumber) + ": " + message)
+	fmt.Println("Error at line " + strconv.Itoa(lineNumber+1) + ": " + message)
 }
