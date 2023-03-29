@@ -6,9 +6,19 @@ import (
 	"strings"
 )
 
+const COMMENT = "//"
+
 func interpLines(fileContent string) {
 	// Split the content into lines
 	fileLines := strings.Split(fileContent, "\n")
+
+	// Remove commentaries
+	for i, v := range fileLines {
+		parts := strings.Split(v, COMMENT)
+		if len(parts) > 1 {
+			fileLines[i] = parts[0]
+		}
+	}
 
 	for int(a.adr) < len(fileLines) {
 		if strings.TrimSpace(fileLines[a.adr]) != "" {
@@ -87,33 +97,94 @@ func interp(line string, ln int) {
 					if isValidReg3 {
 						a.reg[reg1] = a.reg[reg2] - a.reg[reg3]
 					} else {
-						exit(ln, SUB+" instruction, \""+words[3]+"\" is not a valid value or register.")
+						exit(ln, SUB+" instruction, \""+words[3]+"\" is not a valid register.")
 					}
 				} else {
-					exit(ln, SUB+" instruction, \""+words[2]+"\" is not a valid value or register.")
+					exit(ln, SUB+" instruction, \""+words[2]+"\" is not a valid register.")
 				}
 			} else {
-				exit(ln, SUB+" instruction, \""+words[1]+"\" is not a valid value or register.")
+				exit(ln, SUB+" instruction, \""+words[1]+"\" is not a valid register.")
 			}
 		} else {
 			exit(ln, SUB+" instruction should have 1 operand.")
 		}
-	case OR:
-		fmt.Println("Matched OR")
-	case AND:
-		if len(words) != 4 {
+	case NEG:
+		if len(words) == 2 {
+			reg, isValidReg := isValidRegister(words[1])
+			if isValidReg {
+				a.reg[reg] = 255 - a.reg[reg]
+			} else {
+				exit(ln, NEG+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
 		} else {
-			exit(ln, AND+" instruction should have 3 operands.")
+			exit(ln, NEG+" instruction should have 1 operand.")
+		}
+	case NOT:
+		if len(words) == 2 {
+			reg, isValidReg := isValidRegister(words[1])
+			if isValidReg {
+				a.reg[reg] = ^a.reg[reg]
+			} else {
+				exit(ln, NOT+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, NOT+" instruction should have 1 operand.")
+		}
+	case AND:
+		if len(words) == 3 {
+			reg1, isValidReg1 := isValidRegister(words[1])
+			reg2, isValidReg2 := isValidRegister(words[2])
+			if isValidReg1 {
+				if isValidReg2 {
+					a.reg[reg1] = a.reg[reg2] & a.reg[reg1]
+				} else {
+					exit(ln, AND+" instruction, \""+words[2]+"\" is not a valid register.")
+				}
+			} else {
+				exit(ln, AND+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, AND+" instruction should have 2 operands.")
+		}
+	case OR:
+		if len(words) == 3 {
+			reg1, isValidReg1 := isValidRegister(words[1])
+			reg2, isValidReg2 := isValidRegister(words[2])
+			if isValidReg1 {
+				if isValidReg2 {
+					a.reg[reg1] = a.reg[reg2] | a.reg[reg1]
+				} else {
+					exit(ln, OR+" instruction, \""+words[2]+"\" is not a valid register.")
+				}
+			} else {
+				exit(ln, OR+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, OR+" instruction should have 2 operands.")
 		}
 	case XOR:
-		fmt.Println("Matched XOR")
+		if len(words) == 3 {
+			reg1, isValidReg1 := isValidRegister(words[1])
+			reg2, isValidReg2 := isValidRegister(words[2])
+			if isValidReg1 {
+				if isValidReg2 {
+					a.reg[reg1] = a.reg[reg2] ^ a.reg[reg1]
+				} else {
+					exit(ln, XOR+" instruction, \""+words[2]+"\" is not a valid register.")
+				}
+			} else {
+				exit(ln, XOR+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, XOR+" instruction should have 2 operands.")
+		}
 	case INC:
 		if len(words) == 2 {
 			reg, isValidReg := isValidRegister(words[1])
 			if isValidReg {
 				a.reg[reg]++
 			} else {
-				exit(ln, INC+" instruction, \""+words[1]+"\" is not a valid value or register.")
+				exit(ln, INC+" instruction, \""+words[1]+"\" is not a valid register.")
 			}
 		} else {
 			exit(ln, INC+" instruction should have 1 operand.")
@@ -129,8 +200,38 @@ func interp(line string, ln int) {
 		} else {
 			exit(ln, INC+" instruction should have 1 operand.")
 		}
-	case SHF:
-		fmt.Println("Matched SHF")
+	case SHL:
+		if len(words) == 3 {
+			reg, isValidReg := isValidRegister(words[1])
+			val, isValidVal := isValidValue(words[2])
+			if isValidReg {
+				if isValidVal {
+					a.reg[reg] = a.reg[reg] << val
+				} else {
+					exit(ln, SHL+" instruction, \""+words[2]+"\" is not a valid value.")
+				}
+			} else {
+				exit(ln, SHL+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, SHL+" instruction should have 2 operands.")
+		}
+	case SHR:
+		if len(words) == 3 {
+			reg, isValidReg := isValidRegister(words[1])
+			val, isValidVal := isValidValue(words[2])
+			if isValidReg {
+				if isValidVal {
+					a.reg[reg] = a.reg[reg] >> val
+				} else {
+					exit(ln, SHL+" instruction, \""+words[2]+"\" is not a valid value.")
+				}
+			} else {
+				exit(ln, SHL+" instruction, \""+words[1]+"\" is not a valid register.")
+			}
+		} else {
+			exit(ln, SHL+" instruction should have 2 operands.")
+		}
 	case JMP:
 		if len(words) == 2 {
 			reg, isValidReg := isValidRegAddress(words[1])
@@ -207,5 +308,5 @@ func isValidValue(str string) (uint8, bool) {
 }
 
 func exit(ln int, message string) {
-	fmt.Println("Error at line " + strconv.Itoa(ln) + ": " + message)
+	fmt.Println("Error at line " + strconv.Itoa(ln+1) + ": " + message)
 }
