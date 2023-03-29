@@ -1,6 +1,8 @@
 # AsmInterp
 
-An assembly code interpreter in Go for playing with chatGPT.
+An interpreter for assembly-like code.
+
+This program was mostly written thanks to ChatGPT. As an outcome, it was stunningly surprising how fast and reliable chatGPT can be for creating code based on simple prompts. Though it requires of course a strong knowledge of programming, but what if a beginner asks ChatGPT to answer question for all the things he/she doesn't understand 🤔.
 
 ## Run
 
@@ -9,8 +11,8 @@ An assembly code interpreter in Go for playing with chatGPT.
 
 ## How does it work
 
-- There's 8 registers of 8 bits each: r0 to r7
-- Values can be expressed with a number from 0 to 255, or a two digit hex value, from 0x00 to 0xff
+- There's 8 registers of 8 bits each: `r0` to `r7`
+- Values are written in decimal `0` to `255`, or hex from `0x00` to `0xff`
 - Commentaries comes after `//` and are ignored at interpretation
 
 ## Instruction
@@ -25,8 +27,8 @@ An assembly code interpreter in Go for playing with chatGPT.
 | **neg**  | `neg r4`    | Arithmetic negation                                               |
 | **not**  | `not r4`    | Bitwise negation                                                  |
 | **and**  | `and r4 r5` | Bitwise AND destination by source                                 |
-| **or**   | `or r4 r5`  | Not coded yet                                                     |
-| **xor**  | `xor r4 r5` | Not coded yet                                                     |
+| **or**   | `or r4 r5`  | Bitwise OR destination by source                                  |
+| **xor**  | `xor r4 r5` | Bitwise XOR destination by source                                 |
 | **inc**  | `inc r0`    | Increment r0 by 1                                                 |
 | **dec**  | `dec r0`    | Decrement r0 by 1                                                 |
 | **shl**  | `shl r1 k`  | Left shift destination by k bits                                  |
